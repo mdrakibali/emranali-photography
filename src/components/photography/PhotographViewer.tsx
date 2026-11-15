@@ -48,19 +48,33 @@ export default function PhotographViewer({
         : allPhotos[0]
       : initialNext;
 
-  // Handle switching photo inside the lightbox
+  // Handle switching photo inside the lightbox without closing it
   const handleSelectPhoto = useCallback(
     (newPhoto: Photograph) => {
       setCurrentPhoto(newPhoto);
-      // Seamlessly update browser URL bar without triggering hard reload
+      // Seamlessly update browser URL bar without unmounting the lightbox
       if (typeof window !== 'undefined') {
         window.history.replaceState(null, '', `/photographs/${newPhoto.slug}`);
       }
-      // Inform Next.js App Router shallowly
-      router.replace(`/photographs/${newPhoto.slug}`, { scroll: false });
     },
-    [router]
+    []
   );
+
+  // Sync state if user clicks browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window === 'undefined') return;
+      const pathSegments = window.location.pathname.split('/').filter(Boolean);
+      const slug = pathSegments[pathSegments.length - 1];
+      const found = allPhotos.find((p) => p.slug === slug);
+      if (found) {
+        setCurrentPhoto(found);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [allPhotos]);
 
   return (
     <>

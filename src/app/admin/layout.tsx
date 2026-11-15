@@ -1,65 +1,54 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { CmsProvider, useCms } from '@/context/CmsContext';
+import { usePathname, useRouter } from 'next/navigation';
+import { StudioProvider, useStudio } from '@/context/StudioContext';
+import { studioNavItems } from '@/data/studio';
 import {
-  LayoutDashboard,
-  Camera,
-  BookOpen,
-  FileText,
-  Mail,
-  Settings,
   ExternalLink,
   Menu,
   X,
   Plus,
   Sparkles,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const { inquiries } = useCms();
+  const { inquiries, isAuthenticated, isLoaded, logout, adminUser } = useStudio();
+
+  // If on login route, render without sidebar shell
+  const isLoginPage = pathname === '/admin/login';
+
+  useEffect(() => {
+    if (isLoaded && !isAuthenticated && !isLoginPage) {
+      router.replace('/admin/login');
+    }
+  }, [isAuthenticated, isLoaded, isLoginPage, router]);
+
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  // Prevent flicker before auth check
+  if (!isLoaded || (!isAuthenticated && !isLoginPage)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center font-sans">
+        <div className="text-center space-y-3">
+          <span className="font-brand text-2xl uppercase tracking-widest text-foreground block">
+            Emran Ali
+          </span>
+          <span className="text-xs text-muted">Verifying studio session...</span>
+        </div>
+      </div>
+    );
+  }
 
   const pendingInquiriesCount = inquiries.filter((i) => i.status === 'pending').length;
-
-  const navItems = [
-    {
-      href: '/admin',
-      label: 'Overview',
-      icon: LayoutDashboard,
-      exact: true,
-    },
-    {
-      href: '/admin/photographs',
-      label: 'Photographs',
-      icon: Camera,
-    },
-    {
-      href: '/admin/journal',
-      label: 'Journal & Essays',
-      icon: BookOpen,
-    },
-    {
-      href: '/admin/content',
-      label: 'Pages & Bio (CMS)',
-      icon: FileText,
-      badge: 'WordPress-like',
-    },
-    {
-      href: '/admin/inquiries',
-      label: 'Client Inquiries',
-      icon: Mail,
-      count: pendingInquiriesCount,
-    },
-    {
-      href: '/admin/settings',
-      label: 'Site Settings',
-      icon: Settings,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
@@ -70,7 +59,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             Emran Ali
           </span>
           <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 bg-white/10 text-white/70">
-            CMS
+            Studio
           </span>
         </Link>
         <button
@@ -97,7 +86,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               </span>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[10px] tracking-widest uppercase text-white/50">
-                  Editorial CMS Studio
+                  Studio Workspace
                 </span>
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               </div>
@@ -106,7 +95,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
           {/* Navigation Links */}
           <nav className="p-4 space-y-1">
-            {navItems.map((item) => {
+            {studioNavItems.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
                 : pathname?.startsWith(item.href);
@@ -132,24 +121,20 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                   {item.badge && (
                     <span
                       className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-none font-sans ${
-                        isActive
-                          ? 'bg-dark text-white'
-                          : 'bg-white/15 text-white/90'
+                        isActive ? 'bg-dark text-white' : 'bg-white/15 text-white/90'
                       }`}
                     >
                       {item.badge}
                     </span>
                   )}
 
-                  {typeof item.count === 'number' && item.count > 0 && (
+                  {item.hasCount && pendingInquiriesCount > 0 && (
                     <span
                       className={`text-[10px] font-mono px-2 py-0.5 rounded-none font-semibold ${
-                        isActive
-                          ? 'bg-dark text-white'
-                          : 'bg-white text-dark'
+                        isActive ? 'bg-dark text-white' : 'bg-white text-dark'
                       }`}
                     >
-                      {item.count}
+                      {pendingInquiriesCount}
                     </span>
                   )}
                 </Link>
@@ -158,7 +143,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
 
-        {/* Sidebar Footer: Live Site Preview & User Status */}
+        {/* Sidebar Footer: Live Site Preview, User Info & Logout */}
         <div className="p-4 border-t border-dark-border space-y-3">
           <Link
             href="/"
@@ -172,14 +157,27 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             <span className="text-[10px] text-white/50">Visit &rarr;</span>
           </Link>
 
-          <div className="px-3.5 py-2 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-none bg-white text-dark font-serif font-bold flex items-center justify-center text-sm shrink-0">
-              EA
+          <div className="px-3.5 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-8 h-8 rounded-none bg-white text-dark font-serif font-bold flex items-center justify-center text-sm shrink-0">
+                EA
+              </div>
+              <div className="overflow-hidden">
+                <span className="text-xs font-medium text-white block truncate">
+                  {adminUser?.name || 'Emran Ali'}
+                </span>
+                <span className="text-[10px] text-white/50 block truncate">Administrator</span>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <span className="text-xs font-medium text-white block truncate">Emran Ali</span>
-              <span className="text-[10px] text-white/50 block truncate">Administrator</span>
-            </div>
+
+            <button
+              onClick={logout}
+              className="p-1.5 text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
@@ -200,8 +198,8 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-[11px] text-muted bg-secondary px-3 py-1.5 border border-border">
-              <Sparkles className="w-3.5 h-3.5 text-foreground" />
-              <span>CMS Mode: Realtime UI State (Database-Ready)</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-foreground" />
+              <span>Session Authenticated</span>
             </div>
 
             <Link
@@ -223,8 +221,8 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <CmsProvider>
+    <StudioProvider>
       <AdminShell>{children}</AdminShell>
-    </CmsProvider>
+    </StudioProvider>
   );
 }

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useCms } from '@/context/CmsContext';
+import { useStudio } from '@/context/StudioContext';
 import {
   Camera,
   BookOpen,
@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function AdminOverviewPage() {
-  const { photographs, journal, inquiries, subscribers, profile } = useCms();
+  const { photographs, journal, inquiries, subscribers, profile } = useStudio();
 
   const pendingInquiries = inquiries.filter((i) => i.status === 'pending');
   const featuredPhotosCount = photographs.filter((p) => p.isFeatured).length;
@@ -161,7 +161,7 @@ export default function AdminOverviewPage() {
             </span>
             <ArrowRight className="w-4 h-4 text-muted group-hover:text-foreground group-hover:translate-x-1 transition-all" />
           </div>
-          <h3 className="text-lg font-medium text-foreground">Edit About &amp; Bio (CMS)</h3>
+          <h3 className="text-lg font-medium text-foreground">Edit About &amp; Bio</h3>
           <p className="text-xs text-muted mt-1.5 leading-relaxed">
             Update your biography, camera gear, field philosophy, coordinates, and social handles.
           </p>
@@ -293,3 +293,4 @@ export default function AdminOverviewPage() {
     </div>
   );
 }
+

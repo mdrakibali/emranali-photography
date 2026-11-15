@@ -19,3 +19,4 @@ export interface NewsletterSubscriber {
   subscribedAt: string;
   status: 'active' | 'unsubscribed';
 }
+

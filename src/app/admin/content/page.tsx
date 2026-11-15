@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useCms } from '@/context/CmsContext';
+import { useStudio } from '@/context/StudioContext';
+import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
 import {
   Save,
   Check,
@@ -16,12 +17,13 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-export default function AdminContentCmsPage() {
-  const { profile, updateProfile, resetToDefaults } = useCms();
+export default function AdminContentStudioPage() {
+  const { profile, updateProfile, resetToDefaults } = useStudio();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'philosophy' | 'gear' | 'social'>('profile');
   const [formData, setFormData] = useState(profile);
   const [isSaved, setIsSaved] = useState(false);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
   // Sync formData with profile if profile changes externally
   React.useEffect(() => {
@@ -48,7 +50,7 @@ export default function AdminContentCmsPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold text-muted uppercase tracking-widest block">
-              WordPress-Style Page CMS
+              Pages &amp; Profile Studio
             </span>
             <span className="text-[9px] font-semibold px-2 py-0.5 bg-neutral-900 text-white rounded-none">
               Live Editable
@@ -657,3 +659,4 @@ export default function AdminContentCmsPage() {
     </div>
   );
 }
+
