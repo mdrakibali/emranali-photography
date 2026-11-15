@@ -1,0 +1,13 @@
+node_modules
+.next
+package-lock.json
+public
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.svg
+*.woff2
+*.woff
+*.ttf

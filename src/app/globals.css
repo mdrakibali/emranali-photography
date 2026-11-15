@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-dark: var(--dark);
+  --color-dark-surface: var(--dark-surface);
+  --color-dark-border: var(--dark-border);
+
+  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans:
+    var(--font-dm-sans), 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  --font-brand: var(--font-cormorant), 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+:root {
+  /* Strictly Monochrome Black & White Palette */
+  --background: #f7f6f2;
+  --foreground: #181916;
+
+  --primary: #181916;
+  --primary-foreground: #ffffff;
+
+  --secondary: #e9e6de;
+  --secondary-foreground: #181916;
+
+  --muted: #77776f;
+  --muted-foreground: #5a5a53;
+
+  --card: #ffffff;
+  --card-foreground: #181916;
+
+  --border: #dcd8ce;
+
+  /* Deep Editorial Black for alternating sections */
+  --dark: #181916;
+  --dark-surface: #20221e;
+  --dark-border: rgba(255, 255, 255, 0.12);
+}
+
+.font-brand {
+  font-family:
+    var(--font-cormorant), 'Cormorant Garamond', Georgia, 'Times New Roman', serif !important;
+  letter-spacing: 0.14em;
+}
+
+.site-container,
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .site-container,
+  .container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  font-family:
+    var(--font-dm-sans),
+    'DM Sans',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family:
+    var(--font-dm-sans),
+    'DM Sans',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.025em;
+}
+
+/* Ensure buttons, tabs and clickable controls always have cursor pointer */
+button,
+[role='button'],
+[role='tab'],
+input[type='button'],
+input[type='submit'],
+input[type='reset'] {
+  cursor: pointer;
+}
+
+::selection {
+  background-color: var(--foreground);
+  color: var(--background);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
