@@ -5,15 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { StudioProvider, useStudio } from '@/context/StudioContext';
 import { studioNavItems } from '@/data/studio';
-import {
-  ExternalLink,
-  Menu,
-  X,
-  Plus,
-  Sparkles,
-  LogOut,
-  ShieldCheck,
-} from 'lucide-react';
+import { ExternalLink, Menu, X, Plus, Sparkles, LogOut, ShieldCheck } from 'lucide-react';
 
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -192,7 +184,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             </span>
             <span>/</span>
             <span className="capitalize">
-              {pathname === '/admin' ? 'Overview' : pathname.replace('/admin/', '').replace('-', ' ')}
+              {pathname === '/admin'
+                ? 'Overview'
+                : pathname.replace('/admin/', '').replace('-', ' ')}
             </span>
           </div>
 

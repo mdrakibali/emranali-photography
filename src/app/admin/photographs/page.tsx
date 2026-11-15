@@ -2,29 +2,27 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useCms } from '@/context/CmsContext';
+import { useStudio } from '@/context/StudioContext';
 import { Photograph, PhotographyCategory, AspectRatioType } from '@/types/photograph';
-import {
-  Plus,
-  Search,
-  Star,
-  Edit2,
-  Trash2,
-  X,
-  ExternalLink,
-  Camera,
-  Check,
-  Filter,
-} from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
+import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
+import { photoCategorySelectOptions, photoAspectRatioOptions } from '@/data/studio';
+import { Plus, Search, Star, Edit2, Trash2, X, ExternalLink, Camera } from 'lucide-react';
 
 export default function AdminPhotographsPage() {
-  const { photographs, addPhotograph, updatePhotograph, deletePhotograph, toggleFeaturedPhotograph } =
-    useCms();
+  const {
+    photographs,
+    addPhotograph,
+    updatePhotograph,
+    deletePhotograph,
+    toggleFeaturedPhotograph,
+  } = useStudio();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState<Photograph | null>(null);
+  const [photoToDelete, setPhotoToDelete] = useState<{ id: string; title: string } | null>(null);
 
   // Form State
   const emptyPhoto: Omit<Photograph, 'id'> = {
@@ -95,12 +93,6 @@ export default function AdminPhotographsPage() {
     }
 
     setIsModalOpen(false);
-  };
-
-  const handleDelete = (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}" from your photography catalog?`)) {
-      deletePhotograph(id);
-    }
   };
 
   // Filtered Photos List
@@ -234,7 +226,7 @@ export default function AdminPhotographsPage() {
 
                 {/* Category */}
                 <td className="py-3 px-4">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-secondary text-foreground">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-secondary text-foreground capitalize">
                     {photo.category}
                   </span>
                 </td>
@@ -266,7 +258,7 @@ export default function AdminPhotographsPage() {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(photo.id, photo.title)}
+                      onClick={() => setPhotoToDelete({ id: photo.id, title: photo.title })}
                       className="p-1.5 hover:bg-red-50 text-muted hover:text-red-600 transition-colors cursor-pointer"
                       title="Delete Photograph"
                     >
@@ -366,40 +358,32 @@ export default function AdminPhotographsPage() {
                   />
                 </div>
 
+                {/* Custom Category Dropdown */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
                     Category *
                   </label>
-                  <select
+                  <CustomSelect
+                    options={photoCategorySelectOptions}
                     value={formData.category}
-                    onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value as PhotographyCategory })
+                    onChange={(val) =>
+                      setFormData({ ...formData, category: val as PhotographyCategory })
                     }
-                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground focus:outline-hidden focus:border-foreground rounded-none capitalize"
-                  >
-                    <option value="birds">Birds</option>
-                    <option value="wildlife">Wildlife</option>
-                    <option value="nature">Nature &amp; Landscapes</option>
-                    <option value="macro">Macro</option>
-                  </select>
+                  />
                 </div>
 
+                {/* Custom Aspect Ratio Dropdown */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
                     Aspect Ratio *
                   </label>
-                  <select
+                  <CustomSelect
+                    options={photoAspectRatioOptions}
                     value={formData.aspectRatio}
-                    onChange={(e) =>
-                      setFormData({ ...formData, aspectRatio: e.target.value as AspectRatioType })
+                    onChange={(val) =>
+                      setFormData({ ...formData, aspectRatio: val as AspectRatioType })
                     }
-                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground focus:outline-hidden focus:border-foreground rounded-none capitalize"
-                  >
-                    <option value="landscape">Landscape (3:2)</option>
-                    <option value="portrait">Portrait (3:4)</option>
-                    <option value="panoramic">Panoramic (16:9)</option>
-                    <option value="square">Square (1:1)</option>
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -566,7 +550,23 @@ export default function AdminPhotographsPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Confirmation Dialog for Delete */}
+      <CustomConfirmDialog
+        isOpen={Boolean(photoToDelete)}
+        title="Delete Photograph"
+        message={`Are you sure you want to remove "${photoToDelete?.title}" from the catalog? This action will remove it from the gallery.`}
+        confirmText="Yes, Delete Photo"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={() => {
+          if (photoToDelete) {
+            deletePhotograph(photoToDelete.id);
+            setPhotoToDelete(null);
+          }
+        }}
+        onCancel={() => setPhotoToDelete(null)}
+      />
     </div>
   );
 }
-

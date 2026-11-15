@@ -51,7 +51,10 @@ export default function CustomSelect({
   };
 
   return (
-    <div ref={containerRef} className={`relative inline-block w-full text-xs font-sans ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative inline-block w-full text-xs font-sans ${className}`}
+    >
       {/* Trigger Button */}
       <button
         type="button"

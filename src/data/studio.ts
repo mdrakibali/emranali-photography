@@ -1,11 +1,4 @@
-import {
-  LayoutDashboard,
-  Camera,
-  BookOpen,
-  FileText,
-  Mail,
-  Settings,
-} from 'lucide-react';
+import { LayoutDashboard, Camera, BookOpen, FileText, Mail, Settings } from 'lucide-react';
 
 export const studioNavItems = [
   {

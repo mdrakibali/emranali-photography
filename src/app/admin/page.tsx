@@ -85,7 +85,9 @@ export default function AdminOverviewPage() {
             <BookOpen className="w-4 h-4 text-foreground" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-normal text-foreground font-serif">{journal.length}</span>
+            <span className="text-3xl font-normal text-foreground font-serif">
+              {journal.length}
+            </span>
             <span className="text-xs text-muted">Published</span>
           </div>
           <p className="text-[11px] text-muted pt-1">
@@ -128,7 +130,9 @@ export default function AdminOverviewPage() {
             </span>
             <span className="text-xs text-muted">Readers</span>
           </div>
-          <p className="text-[11px] text-muted pt-1">Subscribed to seasonal field essays &amp; prints.</p>
+          <p className="text-[11px] text-muted pt-1">
+            Subscribed to seasonal field essays &amp; prints.
+          </p>
         </div>
       </div>
 
@@ -214,8 +218,8 @@ export default function AdminOverviewPage() {
                         inq.type === 'licensing'
                           ? 'bg-neutral-900 text-white'
                           : inq.type === 'print'
-                          ? 'bg-neutral-200 text-neutral-800'
-                          : 'bg-secondary text-foreground'
+                            ? 'bg-neutral-200 text-neutral-800'
+                            : 'bg-secondary text-foreground'
                       }`}
                     >
                       {inq.type}
@@ -230,8 +234,8 @@ export default function AdminOverviewPage() {
                     inq.status === 'pending'
                       ? 'bg-amber-100 text-amber-900 border border-amber-300'
                       : inq.status === 'replied'
-                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                      : 'bg-secondary text-muted'
+                        ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                        : 'bg-secondary text-muted'
                   }`}
                 >
                   {inq.status}
@@ -293,4 +297,3 @@ export default function AdminOverviewPage() {
     </div>
   );
 }
-

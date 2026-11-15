@@ -42,9 +42,7 @@ export default function FullscreenLightbox({
     if (onNext) {
       onNext();
     } else if (allPhotos && onSelectPhoto && photo) {
-      const currentIndex = allPhotos.findIndex(
-        (p) => p.id === photo.id || p.slug === photo.slug
-      );
+      const currentIndex = allPhotos.findIndex((p) => p.id === photo.id || p.slug === photo.slug);
       if (currentIndex !== -1 && currentIndex < allPhotos.length - 1) {
         onSelectPhoto(allPhotos[currentIndex + 1]);
       } else if (currentIndex === allPhotos.length - 1) {
@@ -60,9 +58,7 @@ export default function FullscreenLightbox({
     if (onPrev) {
       onPrev();
     } else if (allPhotos && onSelectPhoto && photo) {
-      const currentIndex = allPhotos.findIndex(
-        (p) => p.id === photo.id || p.slug === photo.slug
-      );
+      const currentIndex = allPhotos.findIndex((p) => p.id === photo.id || p.slug === photo.slug);
       if (currentIndex > 0) {
         onSelectPhoto(allPhotos[currentIndex - 1]);
       } else if (currentIndex === 0) {
@@ -138,7 +134,8 @@ export default function FullscreenLightbox({
             </span>
             {hasMultiple && currentIndex !== -1 && (
               <span className="text-[10px] sm:text-[11px] font-mono tracking-widest text-white/70 bg-white/10 px-2 py-0.5 rounded-none">
-                {String(currentIndex + 1).padStart(2, '0')} / {String(allPhotos!.length).padStart(2, '0')}
+                {String(currentIndex + 1).padStart(2, '0')} /{' '}
+                {String(allPhotos!.length).padStart(2, '0')}
               </span>
             )}
           </div>

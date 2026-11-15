@@ -76,7 +76,13 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
         const parsedAuth = JSON.parse(savedAuth);
         if (parsedAuth.isAuth) {
           setIsAuthenticated(true);
-          setAdminUser(parsedAuth.user || { name: 'Emran Ali', email: 'admin@emranali.com', role: 'Lead Naturalist' });
+          setAdminUser(
+            parsedAuth.user || {
+              name: 'Emran Ali',
+              email: 'admin@emranali.com',
+              role: 'Lead Naturalist',
+            }
+          );
         }
       }
 

@@ -20,7 +20,9 @@ import {
 export default function AdminContentStudioPage() {
   const { profile, updateProfile, resetToDefaults } = useStudio();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'philosophy' | 'gear' | 'social'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'philosophy' | 'gear' | 'social'>(
+    'profile'
+  );
   const [formData, setFormData] = useState(profile);
   const [isSaved, setIsSaved] = useState(false);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
@@ -60,8 +62,8 @@ export default function AdminContentStudioPage() {
             Edit About &amp; Profile Content
           </h1>
           <p className="text-xs sm:text-sm text-muted font-light mt-1">
-            All text, field narratives, ethics, images, and geographic specifications can be customized
-            here without touching code.
+            All text, field narratives, ethics, images, and geographic specifications can be
+            customized here without touching code.
           </p>
         </div>
 
@@ -79,8 +81,12 @@ export default function AdminContentStudioPage() {
             onClick={handleSave}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer shadow-xs"
           >
-            {isSaved ? <Check className="w-4 h-4 text-emerald-400" /> : <Save className="w-4 h-4" />}
-            <span>{isSaved ? 'Saved to CMS!' : 'Save Changes'}</span>
+            {isSaved ? (
+              <Check className="w-4 h-4 text-emerald-400" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>{isSaved ? 'Saved Successfully!' : 'Save Changes'}</span>
           </button>
         </div>
       </div>
@@ -490,7 +496,9 @@ export default function AdminContentStudioPage() {
               <div className="space-y-3">
                 {formData.fieldJourney.narrative.map((text, idx) => (
                   <div key={idx} className="space-y-1">
-                    <label className="block text-xs text-muted font-medium">Paragraph {idx + 1}</label>
+                    <label className="block text-xs text-muted font-medium">
+                      Paragraph {idx + 1}
+                    </label>
                     <textarea
                       rows={3}
                       value={text}
@@ -517,7 +525,9 @@ export default function AdminContentStudioPage() {
             <div className="bg-card border border-border p-6 rounded-none space-y-6">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Field Equipment &amp; Gear</h3>
+                  <h3 className="text-base font-semibold text-foreground">
+                    Field Equipment &amp; Gear
+                  </h3>
                   <span className="text-xs text-muted">Documented in About page specification</span>
                 </div>
               </div>
@@ -576,7 +586,10 @@ export default function AdminContentStudioPage() {
                   Social Platforms &amp; Handles
                 </label>
                 {formData.socials.map((soc, idx) => (
-                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-background border border-border">
+                  <div
+                    key={idx}
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-background border border-border"
+                  >
                     <div>
                       <span className="block text-[10px] text-muted uppercase font-semibold mb-1">
                         Platform
@@ -641,7 +654,7 @@ export default function AdminContentStudioPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={resetToDefaults}
+              onClick={() => setIsResetDialogOpen(true)}
               className="px-3.5 py-2 text-xs font-medium text-white/70 hover:text-white border border-white/20 hover:border-white transition-colors cursor-pointer"
             >
               Reset to Defaults
@@ -650,13 +663,31 @@ export default function AdminContentStudioPage() {
               type="submit"
               className="inline-flex items-center gap-2 px-5 py-2 bg-white text-dark text-xs font-semibold uppercase tracking-wider hover:bg-neutral-200 transition-colors cursor-pointer"
             >
-              {isSaved ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Save className="w-3.5 h-3.5" />}
+              {isSaved ? (
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+              ) : (
+                <Save className="w-3.5 h-3.5" />
+              )}
               <span>{isSaved ? 'Saved!' : 'Save All Changes'}</span>
             </button>
           </div>
         </div>
       </form>
+
+      {/* Custom Confirmation Dialog (No native alert/confirm) */}
+      <CustomConfirmDialog
+        isOpen={isResetDialogOpen}
+        title="Reset Content to Defaults"
+        message="Are you sure you want to revert all biography, philosophy, and equipment edits back to factory seed defaults?"
+        confirmText="Yes, Revert to Defaults"
+        cancelText="Cancel"
+        type="warning"
+        onConfirm={() => {
+          resetToDefaults();
+          setIsResetDialogOpen(false);
+        }}
+        onCancel={() => setIsResetDialogOpen(false)}
+      />
     </div>
   );
 }
-

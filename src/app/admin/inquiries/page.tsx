@@ -36,8 +36,8 @@ export default function AdminInquiriesPage() {
             Client Inquiries &amp; Contacts
           </h1>
           <p className="text-xs sm:text-sm text-muted font-light mt-1">
-            Review collectors seeking archival prints, art buyers requesting commercial licensing, and
-            general inquiries.
+            Review collectors seeking archival prints, art buyers requesting commercial licensing,
+            and general inquiries.
           </p>
         </div>
 
@@ -114,8 +114,8 @@ export default function AdminInquiriesPage() {
                           inq.type === 'licensing'
                             ? 'bg-neutral-900 text-white'
                             : inq.type === 'print'
-                            ? 'bg-neutral-200 text-neutral-800'
-                            : 'bg-secondary text-foreground'
+                              ? 'bg-neutral-200 text-neutral-800'
+                              : 'bg-secondary text-foreground'
                         }`}
                       >
                         {inq.type}
@@ -132,9 +132,7 @@ export default function AdminInquiriesPage() {
                     <span className="text-xs text-muted">{inq.date}</span>
                     <select
                       value={inq.status}
-                      onChange={(e) =>
-                        updateInquiryStatus(inq.id, e.target.value as InquiryStatus)
-                      }
+                      onChange={(e) => updateInquiryStatus(inq.id, e.target.value as InquiryStatus)}
                       className="px-2.5 py-1 text-xs bg-background border border-border rounded-none cursor-pointer capitalize font-medium"
                     >
                       <option value="pending">Pending</option>
@@ -175,8 +173,8 @@ export default function AdminInquiriesPage() {
                       inq.status === 'pending'
                         ? 'text-amber-800 bg-amber-100'
                         : inq.status === 'replied'
-                        ? 'text-emerald-800 bg-emerald-100'
-                        : 'text-muted bg-secondary'
+                          ? 'text-emerald-800 bg-emerald-100'
+                          : 'text-muted bg-secondary'
                     }`}
                   >
                     Status: {inq.status}
@@ -230,4 +228,3 @@ export default function AdminInquiriesPage() {
     </div>
   );
 }
-

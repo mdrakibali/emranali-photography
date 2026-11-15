@@ -49,16 +49,13 @@ export default function PhotographViewer({
       : initialNext;
 
   // Handle switching photo inside the lightbox without closing it
-  const handleSelectPhoto = useCallback(
-    (newPhoto: Photograph) => {
-      setCurrentPhoto(newPhoto);
-      // Seamlessly update browser URL bar without unmounting the lightbox
-      if (typeof window !== 'undefined') {
-        window.history.replaceState(null, '', `/photographs/${newPhoto.slug}`);
-      }
-    },
-    []
-  );
+  const handleSelectPhoto = useCallback((newPhoto: Photograph) => {
+    setCurrentPhoto(newPhoto);
+    // Seamlessly update browser URL bar without unmounting the lightbox
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `/photographs/${newPhoto.slug}`);
+    }
+  }, []);
 
   // Sync state if user clicks browser back/forward buttons
   useEffect(() => {

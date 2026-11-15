@@ -58,4 +58,3 @@ export const initialSubscribersData: NewsletterSubscriber[] = [
     status: 'active',
   },
 ];
-

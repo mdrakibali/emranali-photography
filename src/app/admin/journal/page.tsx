@@ -4,7 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCms } from '@/context/CmsContext';
 import { JournalArticle, JournalCategory } from '@/types/journal';
-import { Plus, Search, Edit2, Trash2, X, ExternalLink, BookOpen, Clock, MapPin } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  X,
+  ExternalLink,
+  BookOpen,
+  Clock,
+  MapPin,
+} from 'lucide-react';
 
 export default function AdminJournalPage() {
   const { journal, addJournal, updateJournal, deleteJournal } = useCms();
@@ -357,4 +367,3 @@ export default function AdminJournalPage() {
     </div>
   );
 }
-
