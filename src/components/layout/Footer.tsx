@@ -1,11 +1,19 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { footerNavigation } from '@/data/navigation';
 import { photographerData } from '@/data/photographer';
 import { siteSettings } from '@/data/site-settings';
 import { MapPin, Mail, ArrowUpRight } from 'lucide-react';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
   return (
     <footer className="bg-dark text-white border-t border-dark-border pt-16 pb-12 font-sans">
       <div className="site-container">
@@ -110,7 +118,16 @@ export default function Footer() {
           <p>
             © {siteSettings.copyrightYear} {photographerData.name}. All rights reserved.
           </p>
-          <p>Thakurgaon, Bangladesh</p>
+          <div className="flex items-center gap-6">
+            <span>Thakurgaon, Bangladesh</span>
+            <span>•</span>
+            <Link
+              href="/admin"
+              className="text-white/40 hover:text-white transition-colors uppercase tracking-widest text-[10px]"
+            >
+              Admin Studio
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
