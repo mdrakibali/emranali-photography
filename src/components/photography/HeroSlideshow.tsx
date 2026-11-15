@@ -3,26 +3,32 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { HERO_SLIDES, SLIDE_AUTOPLAY_DURATION } from '@/data/hero-slides';
+import { useStudio } from '@/context/StudioContext';
 import { ChevronLeft, ChevronRight, ArrowUpRight, Pause, Play, MapPin } from 'lucide-react';
 
 export default function HeroSlideshow() {
+  const { heroSlides } = useStudio();
+  const slides = heroSlides && heroSlides.length > 0 ? heroSlides : HERO_SLIDES;
+
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const activeSlide = HERO_SLIDES[currentSlideIndex];
+  // Guard against index out of bounds
+  const safeIndex = currentSlideIndex < slides.length ? currentSlideIndex : 0;
+  const activeSlide = slides[safeIndex] || slides[0];
 
   const goToNextSlide = useCallback(() => {
-    setCurrentSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+    setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
     setProgress(0);
-  }, []);
+  }, [slides.length]);
 
   const goToPrevSlide = useCallback(() => {
-    setCurrentSlideIndex((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+    setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
     setProgress(0);
-  }, []);
+  }, [slides.length]);
 
   const selectSlide = (index: number) => {
     setCurrentSlideIndex(index);
@@ -54,13 +60,13 @@ export default function HeroSlideshow() {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     };
-  }, [currentSlideIndex, isPaused, goToNextSlide]);
+  }, [safeIndex, isPaused, goToNextSlide]);
 
   return (
     <section className="relative min-h-screen lg:h-screen w-full overflow-hidden bg-dark flex flex-col justify-end pt-24 sm:pt-28 pb-10 sm:pb-16 lg:pb-20">
       {/* Background Slides with Cross-Fade */}
-      {HERO_SLIDES.map((slide, index) => {
-        const isActive = index === currentSlideIndex;
+      {slides.map((slide, index) => {
+        const isActive = index === safeIndex;
         return (
           <div
             key={slide.id}
@@ -137,7 +143,7 @@ export default function HeroSlideshow() {
                   {activeSlide.category}
                 </span>
                 <span className="text-muted font-medium">
-                  0{currentSlideIndex + 1} / 0{HERO_SLIDES.length}
+                  0{safeIndex + 1} / 0{slides.length}
                 </span>
               </div>
 

@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.5",
+    "@tiptap/extension-link": "^3.34.0",
+    "@tiptap/react": "^3.34.0",
+    "@tiptap/starter-kit": "^3.34.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.460.0",

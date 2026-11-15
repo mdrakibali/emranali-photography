@@ -3,6 +3,7 @@ import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/navigation/Navbar';
 import Footer from '@/components/layout/Footer';
+import StudioProviderWrapper from '@/components/providers/StudioProviderWrapper';
 import { siteSettings } from '@/data/site-settings';
 import { generatePersonSchema } from '@/lib/seo';
 
@@ -80,9 +81,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-foreground selection:text-background">
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <StudioProviderWrapper>
+          <Navbar />
+          <main className="grow">{children}</main>
+          <Footer />
+        </StudioProviderWrapper>
       </body>
     </html>
   );

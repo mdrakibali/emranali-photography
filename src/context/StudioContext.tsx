@@ -4,10 +4,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { Photograph } from '@/types/photograph';
 import { JournalArticle } from '@/types/journal';
 import { PhotographerProfile } from '@/types/photographer';
+import { HeroSlide } from '@/types/hero';
 import { ClientInquiry, NewsletterSubscriber, InquiryStatus } from '@/types/inquiry';
 import { photographsData } from '@/data/photographs';
 import { journalArticlesData } from '@/data/journal';
 import { photographerData } from '@/data/photographer';
+import { HERO_SLIDES } from '@/data/hero-slides';
 import { siteSettings as defaultSiteSettings } from '@/data/site-settings';
 import { initialInquiriesData, initialSubscribersData } from '@/data/inquiries';
 
@@ -28,6 +30,7 @@ interface StudioContextType {
   profile: PhotographerProfile;
   photographs: Photograph[];
   journal: JournalArticle[];
+  heroSlides: HeroSlide[];
   inquiries: ClientInquiry[];
   subscribers: NewsletterSubscriber[];
   siteSettings: typeof defaultSiteSettings;
@@ -42,6 +45,9 @@ interface StudioContextType {
   addJournal: (article: JournalArticle) => void;
   updateJournal: (article: JournalArticle) => void;
   deleteJournal: (id: string) => void;
+  updateHeroSlide: (slide: HeroSlide) => void;
+  addHeroSlide: (slide: HeroSlide) => void;
+  deleteHeroSlide: (id: string) => void;
   updateInquiryStatus: (id: string, status: InquiryStatus) => void;
   deleteInquiry: (id: string) => void;
   updateSiteSettings: (settings: Partial<typeof defaultSiteSettings>) => void;
@@ -62,6 +68,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<PhotographerProfile>(photographerData);
   const [photographs, setPhotographs] = useState<Photograph[]>(photographsData);
   const [journal, setJournal] = useState<JournalArticle[]>(journalArticlesData);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(HERO_SLIDES);
   const [inquiries, setInquiries] = useState<ClientInquiry[]>(initialInquiriesData);
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>(initialSubscribersData);
   const [siteSettings, setSiteSettings] = useState(defaultSiteSettings);
@@ -93,6 +100,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
         if (parsed.profile) setProfile(parsed.profile);
         if (parsed.photographs) setPhotographs(parsed.photographs);
         if (parsed.journal) setJournal(parsed.journal);
+        if (parsed.heroSlides) setHeroSlides(parsed.heroSlides);
         if (parsed.inquiries) setInquiries(parsed.inquiries);
         if (parsed.subscribers) setSubscribers(parsed.subscribers);
         if (parsed.siteSettings) setSiteSettings(parsed.siteSettings);
@@ -147,30 +155,32 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
 
   // Persist content state
   const persistState = useCallback(
-    (
-      newProfile = profile,
-      newPhotographs = photographs,
-      newJournal = journal,
-      newInquiries = inquiries,
-      newSubscribers = subscribers,
-      newSettings = siteSettings
-    ) => {
+    (overrides?: {
+      profile?: PhotographerProfile;
+      photographs?: Photograph[];
+      journal?: JournalArticle[];
+      heroSlides?: HeroSlide[];
+      inquiries?: ClientInquiry[];
+      subscribers?: NewsletterSubscriber[];
+      siteSettings?: typeof defaultSiteSettings;
+    }) => {
       if (typeof window === 'undefined') return;
       try {
         const stateToSave = {
-          profile: newProfile,
-          photographs: newPhotographs,
-          journal: newJournal,
-          inquiries: newInquiries,
-          subscribers: newSubscribers,
-          siteSettings: newSettings,
+          profile: overrides?.profile ?? profile,
+          photographs: overrides?.photographs ?? photographs,
+          journal: overrides?.journal ?? journal,
+          heroSlides: overrides?.heroSlides ?? heroSlides,
+          inquiries: overrides?.inquiries ?? inquiries,
+          subscribers: overrides?.subscribers ?? subscribers,
+          siteSettings: overrides?.siteSettings ?? siteSettings,
         };
         localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(stateToSave));
       } catch (e) {
         console.warn('Failed to persist Studio state:', e);
       }
     },
-    [profile, photographs, journal, inquiries, subscribers, siteSettings]
+    [profile, photographs, journal, heroSlides, inquiries, subscribers, siteSettings]
   );
 
   // Profile Update
@@ -178,11 +188,11 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     (updated: Partial<PhotographerProfile>) => {
       setProfile((prev) => {
         const next = { ...prev, ...updated };
-        persistState(next, photographs, journal, inquiries, subscribers, siteSettings);
+        persistState({ profile: next });
         return next;
       });
     },
-    [persistState, photographs, journal, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   // Photograph CRUD
@@ -190,44 +200,44 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     (newPhoto: Photograph) => {
       setPhotographs((prev) => {
         const next = [newPhoto, ...prev];
-        persistState(profile, next, journal, inquiries, subscribers, siteSettings);
+        persistState({ photographs: next });
         return next;
       });
     },
-    [persistState, profile, journal, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   const updatePhotograph = useCallback(
     (updatedPhoto: Photograph) => {
       setPhotographs((prev) => {
         const next = prev.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p));
-        persistState(profile, next, journal, inquiries, subscribers, siteSettings);
+        persistState({ photographs: next });
         return next;
       });
     },
-    [persistState, profile, journal, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   const deletePhotograph = useCallback(
     (id: string) => {
       setPhotographs((prev) => {
         const next = prev.filter((p) => p.id !== id);
-        persistState(profile, next, journal, inquiries, subscribers, siteSettings);
+        persistState({ photographs: next });
         return next;
       });
     },
-    [persistState, profile, journal, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   const toggleFeaturedPhotograph = useCallback(
     (id: string) => {
       setPhotographs((prev) => {
         const next = prev.map((p) => (p.id === id ? { ...p, isFeatured: !p.isFeatured } : p));
-        persistState(profile, next, journal, inquiries, subscribers, siteSettings);
+        persistState({ photographs: next });
         return next;
       });
     },
-    [persistState, profile, journal, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   // Journal CRUD
@@ -235,33 +245,67 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     (newArticle: JournalArticle) => {
       setJournal((prev) => {
         const next = [newArticle, ...prev];
-        persistState(profile, photographs, next, inquiries, subscribers, siteSettings);
+        persistState({ journal: next });
         return next;
       });
     },
-    [persistState, profile, photographs, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   const updateJournal = useCallback(
     (updatedArticle: JournalArticle) => {
       setJournal((prev) => {
         const next = prev.map((a) => (a.id === updatedArticle.id ? updatedArticle : a));
-        persistState(profile, photographs, next, inquiries, subscribers, siteSettings);
+        persistState({ journal: next });
         return next;
       });
     },
-    [persistState, profile, photographs, inquiries, subscribers, siteSettings]
+    [persistState]
   );
 
   const deleteJournal = useCallback(
     (id: string) => {
       setJournal((prev) => {
         const next = prev.filter((a) => a.id !== id);
-        persistState(profile, photographs, next, inquiries, subscribers, siteSettings);
+        persistState({ journal: next });
         return next;
       });
     },
-    [persistState, profile, photographs, inquiries, subscribers, siteSettings]
+    [persistState]
+  );
+
+  // Hero Slides CRUD
+  const updateHeroSlide = useCallback(
+    (updatedSlide: HeroSlide) => {
+      setHeroSlides((prev) => {
+        const next = prev.map((s) => (s.id === updatedSlide.id ? updatedSlide : s));
+        persistState({ heroSlides: next });
+        return next;
+      });
+    },
+    [persistState]
+  );
+
+  const addHeroSlide = useCallback(
+    (newSlide: HeroSlide) => {
+      setHeroSlides((prev) => {
+        const next = [...prev, newSlide];
+        persistState({ heroSlides: next });
+        return next;
+      });
+    },
+    [persistState]
+  );
+
+  const deleteHeroSlide = useCallback(
+    (id: string) => {
+      setHeroSlides((prev) => {
+        const next = prev.filter((s) => s.id !== id);
+        persistState({ heroSlides: next });
+        return next;
+      });
+    },
+    [persistState]
   );
 
   // Inquiries CRUD
@@ -269,22 +313,22 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     (id: string, status: InquiryStatus) => {
       setInquiries((prev) => {
         const next = prev.map((inq) => (inq.id === id ? { ...inq, status } : inq));
-        persistState(profile, photographs, journal, next, subscribers, siteSettings);
+        persistState({ inquiries: next });
         return next;
       });
     },
-    [persistState, profile, photographs, journal, subscribers, siteSettings]
+    [persistState]
   );
 
   const deleteInquiry = useCallback(
     (id: string) => {
       setInquiries((prev) => {
         const next = prev.filter((inq) => inq.id !== id);
-        persistState(profile, photographs, journal, next, subscribers, siteSettings);
+        persistState({ inquiries: next });
         return next;
       });
     },
-    [persistState, profile, photographs, journal, subscribers, siteSettings]
+    [persistState]
   );
 
   // Site Settings
@@ -292,11 +336,11 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     (settings: Partial<typeof defaultSiteSettings>) => {
       setSiteSettings((prev) => {
         const next = { ...prev, ...settings };
-        persistState(profile, photographs, journal, inquiries, subscribers, next);
+        persistState({ siteSettings: next });
         return next;
       });
     },
-    [persistState, profile, photographs, journal, inquiries, subscribers]
+    [persistState]
   );
 
   // Reset to initial seed data
@@ -304,6 +348,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     setProfile(photographerData);
     setPhotographs(photographsData);
     setJournal(journalArticlesData);
+    setHeroSlides(HERO_SLIDES);
     setInquiries(initialInquiriesData);
     setSubscribers(initialSubscribersData);
     setSiteSettings(defaultSiteSettings);
@@ -322,6 +367,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
         profile,
         photographs,
         journal,
+        heroSlides,
         inquiries,
         subscribers,
         siteSettings,
@@ -334,6 +380,9 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
         addJournal,
         updateJournal,
         deleteJournal,
+        updateHeroSlide,
+        addHeroSlide,
+        deleteHeroSlide,
         updateInquiryStatus,
         deleteInquiry,
         updateSiteSettings,

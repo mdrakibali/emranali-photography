@@ -43,9 +43,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const pendingInquiriesCount = inquiries.filter((i) => i.status === 'pending').length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
+    <div className="h-screen w-full overflow-hidden bg-background text-foreground flex flex-col md:flex-row font-sans">
       {/* Mobile Top Header */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-dark text-white border-b border-dark-border">
+      <div className="md:hidden flex items-center justify-between p-4 bg-dark text-white border-b border-dark-border shrink-0">
         <Link href="/admin" className="flex items-center gap-2">
           <span className="font-brand text-xl font-medium tracking-[0.14em] uppercase text-white">
             Emran Ali
@@ -63,9 +63,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         </button>
       </div>
 
-      {/* Admin Sidebar Navigation */}
+      {/* Admin Sidebar Navigation (Fixed on Desktop, independent scrolling) */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-dark text-white border-r border-dark-border flex flex-col justify-between transition-transform duration-300 md:translate-x-0 md:static ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 h-full bg-dark text-white border-r border-dark-border flex flex-col justify-between transition-transform duration-300 md:translate-x-0 md:static md:h-screen md:shrink-0 overflow-y-auto ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -174,10 +174,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main Content Workspace */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header Bar for Desktop */}
-        <header className="hidden md:flex items-center justify-between h-16 px-8 bg-card border-b border-border">
+      {/* Main Content Workspace (Scrolls independently while sidebar is fixed) */}
+      <div className="flex-1 h-screen overflow-y-auto flex flex-col min-w-0">
+        {/* Top Header Bar for Desktop (Sticky) */}
+        <header className="sticky top-0 z-30 hidden md:flex items-center justify-between h-16 px-8 bg-card/95 backdrop-blur-xs border-b border-border shrink-0">
           <div className="flex items-center gap-3 text-xs text-muted">
             <span className="font-semibold text-foreground uppercase tracking-wider">
               Studio Workspace
@@ -214,9 +214,5 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <StudioProvider>
-      <AdminShell>{children}</AdminShell>
-    </StudioProvider>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }
