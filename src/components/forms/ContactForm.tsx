@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
+import CustomSelect from '@/components/ui/CustomSelect';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
+
+const contactInquiryOptions = [
+  { value: 'licensing', label: 'Image Licensing & Rights' },
+  { value: 'prints', label: 'Fine-Art Print Acquisition' },
+  { value: 'exhibition', label: 'Exhibition & Gallery Curation' },
+  { value: 'assignment', label: 'Field Assignment & Expedition' },
+  { value: 'general', label: 'General Naturalist Inquiry' },
+];
 
 interface ContactFormData {
   name: string;
@@ -125,18 +134,11 @@ export default function ContactForm() {
               <label className="text-xs font-sans font-semibold text-foreground block">
                 Inquiry Type
               </label>
-              <select
-                name="inquiryType"
+              <CustomSelect
+                options={contactInquiryOptions}
                 value={formData.inquiryType}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-background border border-border text-foreground text-sm font-sans rounded-none focus:outline-none focus:border-foreground"
-              >
-                <option value="licensing">Image Licensing & Rights</option>
-                <option value="prints">Fine-Art Print Acquisition</option>
-                <option value="exhibition">Exhibition & Gallery Curation</option>
-                <option value="assignment">Field Assignment & Expedition</option>
-                <option value="general">General Naturalist Inquiry</option>
-              </select>
+                onChange={(val) => setFormData((prev) => ({ ...prev, inquiryType: val }))}
+              />
             </div>
 
             <div className="space-y-1.5">

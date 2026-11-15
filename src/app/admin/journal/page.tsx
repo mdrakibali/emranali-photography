@@ -2,26 +2,20 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useCms } from '@/context/CmsContext';
+import { useStudio } from '@/context/StudioContext';
 import { JournalArticle, JournalCategory } from '@/types/journal';
-import {
-  Plus,
-  Search,
-  Edit2,
-  Trash2,
-  X,
-  ExternalLink,
-  BookOpen,
-  Clock,
-  MapPin,
-} from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
+import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
+import { journalCategoryOptions } from '@/data/studio';
+import { Plus, Search, Edit2, Trash2, X, ExternalLink, BookOpen, Clock, MapPin } from 'lucide-react';
 
 export default function AdminJournalPage() {
-  const { journal, addJournal, updateJournal, deleteJournal } = useCms();
+  const { journal, addJournal, updateJournal, deleteJournal } = useStudio();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<JournalArticle | null>(null);
+  const [articleToDelete, setArticleToDelete] = useState<{ id: string; title: string } | null>(null);
 
   const emptyArticle: Omit<JournalArticle, 'id'> = {
     slug: '',
@@ -82,12 +76,6 @@ export default function AdminJournalPage() {
     }
 
     setIsModalOpen(false);
-  };
-
-  const handleDelete = (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete the field essay "${title}"?`)) {
-      deleteJournal(id);
-    }
   };
 
   const filteredArticles = journal.filter(
@@ -202,7 +190,7 @@ export default function AdminJournalPage() {
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(article.id, article.title)}
+                  onClick={() => setArticleToDelete({ id: article.id, title: article.title })}
                   className="p-1.5 text-muted hover:text-red-600 cursor-pointer"
                   title="Delete Essay"
                 >
@@ -264,23 +252,18 @@ export default function AdminJournalPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Custom Category Dropdown */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
                     Category *
                   </label>
-                  <select
+                  <CustomSelect
+                    options={journalCategoryOptions}
                     value={formData.category}
-                    onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value as JournalCategory })
+                    onChange={(val) =>
+                      setFormData({ ...formData, category: val as JournalCategory })
                     }
-                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
-                  >
-                    <option value="Field Notes">Field Notes</option>
-                    <option value="Behind the Photograph">Behind the Photograph</option>
-                    <option value="Wildlife Encounters">Wildlife Encounters</option>
-                    <option value="Photography Journal">Photography Journal</option>
-                    <option value="Nature & Conservation">Nature &amp; Conservation</option>
-                  </select>
+                  />
                 </div>
 
                 <div>
@@ -364,6 +347,23 @@ export default function AdminJournalPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Confirmation Dialog for Delete */}
+      <CustomConfirmDialog
+        isOpen={Boolean(articleToDelete)}
+        title="Delete Field Essay"
+        message={`Are you sure you want to remove "${articleToDelete?.title}"? This essay will be unpublished from the journal.`}
+        confirmText="Yes, Delete Essay"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={() => {
+          if (articleToDelete) {
+            deleteJournal(articleToDelete.id);
+            setArticleToDelete(null);
+          }
+        }}
+        onCancel={() => setArticleToDelete(null)}
+      />
     </div>
   );
 }

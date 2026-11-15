@@ -1,16 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCms } from '@/context/CmsContext';
+import { useStudio } from '@/context/StudioContext';
 import { InquiryStatus, InquiryType } from '@/types/inquiry';
-import { Mail, CheckCircle2, Clock, Trash2, Users, Search, MessageSquare } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
+import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
+import { inquiryStatusOptions } from '@/data/studio';
+import { Mail, Trash2, Users, Search, MessageSquare } from 'lucide-react';
 
 export default function AdminInquiriesPage() {
-  const { inquiries, subscribers, updateInquiryStatus, deleteInquiry } = useCms();
+  const { inquiries, subscribers, updateInquiryStatus, deleteInquiry } = useStudio();
 
   const [activeTab, setActiveTab] = useState<'inquiries' | 'subscribers'>('inquiries');
   const [typeFilter, setTypeFilter] = useState<'all' | InquiryType>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [inquiryToDelete, setInquiryToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const filteredInquiries = inquiries.filter((inq) => {
     const matchesType = typeFilter === 'all' || inq.type === typeFilter;
@@ -21,8 +25,6 @@ export default function AdminInquiriesPage() {
       inq.message.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   });
-
-  const pendingCount = inquiries.filter((i) => i.status === 'pending').length;
 
   return (
     <div className="space-y-6 animate-fadeIn pb-16">
@@ -36,8 +38,8 @@ export default function AdminInquiriesPage() {
             Client Inquiries &amp; Contacts
           </h1>
           <p className="text-xs sm:text-sm text-muted font-light mt-1">
-            Review collectors seeking archival prints, art buyers requesting commercial licensing,
-            and general inquiries.
+            Review collectors seeking archival prints, art buyers requesting commercial licensing, and
+            general inquiries.
           </p>
         </div>
 
@@ -104,7 +106,7 @@ export default function AdminInquiriesPage() {
                 key={inq.id}
                 className="p-6 bg-card border border-border rounded-none space-y-4 transition-all"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-semibold text-foreground">{inq.name}</h3>
@@ -114,8 +116,8 @@ export default function AdminInquiriesPage() {
                           inq.type === 'licensing'
                             ? 'bg-neutral-900 text-white'
                             : inq.type === 'print'
-                              ? 'bg-neutral-200 text-neutral-800'
-                              : 'bg-secondary text-foreground'
+                            ? 'bg-neutral-200 text-neutral-800'
+                            : 'bg-secondary text-foreground'
                         }`}
                       >
                         {inq.type}
@@ -128,20 +130,18 @@ export default function AdminInquiriesPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted">{inq.date}</span>
-                    <select
-                      value={inq.status}
-                      onChange={(e) => updateInquiryStatus(inq.id, e.target.value as InquiryStatus)}
-                      className="px-2.5 py-1 text-xs bg-background border border-border rounded-none cursor-pointer capitalize font-medium"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="reviewed">Reviewed</option>
-                      <option value="replied">Replied</option>
-                      <option value="archived">Archived</option>
-                    </select>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted shrink-0">{inq.date}</span>
+                    {/* Custom Status Dropdown */}
+                    <div className="w-32">
+                      <CustomSelect
+                        options={inquiryStatusOptions}
+                        value={inq.status}
+                        onChange={(val) => updateInquiryStatus(inq.id, val as InquiryStatus)}
+                      />
+                    </div>
                     <button
-                      onClick={() => deleteInquiry(inq.id)}
+                      onClick={() => setInquiryToDelete({ id: inq.id, name: inq.name })}
                       className="p-1.5 text-muted hover:text-red-600 cursor-pointer"
                       title="Delete inquiry"
                     >
@@ -173,8 +173,8 @@ export default function AdminInquiriesPage() {
                       inq.status === 'pending'
                         ? 'text-amber-800 bg-amber-100'
                         : inq.status === 'replied'
-                          ? 'text-emerald-800 bg-emerald-100'
-                          : 'text-muted bg-secondary'
+                        ? 'text-emerald-800 bg-emerald-100'
+                        : 'text-muted bg-secondary'
                     }`}
                   >
                     Status: {inq.status}
@@ -225,6 +225,23 @@ export default function AdminInquiriesPage() {
           </table>
         </div>
       )}
+
+      {/* Custom Confirmation Dialog for Delete */}
+      <CustomConfirmDialog
+        isOpen={Boolean(inquiryToDelete)}
+        title="Delete Client Inquiry"
+        message={`Are you sure you want to delete the inquiry from "${inquiryToDelete?.name}"?`}
+        confirmText="Yes, Delete Inquiry"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={() => {
+          if (inquiryToDelete) {
+            deleteInquiry(inquiryToDelete.id);
+            setInquiryToDelete(null);
+          }
+        }}
+        onCancel={() => setInquiryToDelete(null)}
+      />
     </div>
   );
 }

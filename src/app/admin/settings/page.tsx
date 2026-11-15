@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCms } from '@/context/CmsContext';
-import { Save, Check, RefreshCw, Database, ShieldCheck, Sparkles } from 'lucide-react';
+import { useStudio } from '@/context/StudioContext';
+import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
+import { Save, Check, RefreshCw, Database, ShieldCheck } from 'lucide-react';
 
 export default function AdminSettingsPage() {
-  const { siteSettings, updateSiteSettings, resetToDefaults } = useCms();
+  const { siteSettings, updateSiteSettings, resetToDefaults } = useStudio();
   const [formData, setFormData] = useState(siteSettings);
   const [isSaved, setIsSaved] = useState(false);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,14 +18,10 @@ export default function AdminSettingsPage() {
     setTimeout(() => setIsSaved(false), 3000);
   };
 
-  const handleReset = () => {
-    if (
-      confirm(
-        'Warning: This will reset all your CMS modifications (photos, about info, inquiries) back to the initial factory seed data. Continue?'
-      )
-    ) {
-      resetToDefaults();
-      alert('CMS state has been reset to defaults.');
+  const handleConfirmReset = () => {
+    resetToDefaults();
+    setIsResetDialogOpen(false);
+    if (typeof window !== 'undefined') {
       window.location.reload();
     }
   };
@@ -134,7 +132,7 @@ export default function AdminSettingsPage() {
             </h3>
           </div>
           <p className="text-xs text-muted leading-relaxed">
-            The studio is currently configured with the <strong>Realtime Client CMS Engine</strong>,
+            The studio is currently operating on the <strong>Realtime Studio Context Engine</strong>,
             persisting all modifications in local browser storage. It is structured to connect
             seamlessly with:
           </p>
@@ -148,7 +146,7 @@ export default function AdminSettingsPage() {
         {/* Danger Zone: Reset Data */}
         <div className="p-6 bg-card border border-red-200 rounded-none space-y-4">
           <h3 className="text-sm font-semibold text-red-700 uppercase tracking-wider">
-            Reset CMS Factory Data
+            Reset Studio Factory Data
           </h3>
           <p className="text-xs text-muted leading-relaxed">
             If you ever wish to clear all edits and restore the original fine-art photographs,
@@ -156,7 +154,7 @@ export default function AdminSettingsPage() {
           </p>
           <button
             type="button"
-            onClick={handleReset}
+            onClick={() => setIsResetDialogOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-xs font-semibold uppercase tracking-wider hover:bg-red-700 transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -164,6 +162,18 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Custom Confirmation Dialog (No native alert/confirm) */}
+      <CustomConfirmDialog
+        isOpen={isResetDialogOpen}
+        title="Reset All Studio Data"
+        message="Warning: This will reset all your photographs, about biography, and inquiries back to the original factory seed data. Are you sure?"
+        confirmText="Yes, Reset Everything"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={handleConfirmReset}
+        onCancel={() => setIsResetDialogOpen(false)}
+      />
     </div>
   );
 }
