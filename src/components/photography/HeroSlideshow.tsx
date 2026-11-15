@@ -211,8 +211,8 @@ export default function HeroSlideshow() {
 
             {/* Quick Slide Selector Dots/Pills */}
             <div className="flex items-center gap-2 text-xs">
-              {HERO_SLIDES.map((slide, idx) => {
-                const isSelected = idx === currentSlideIndex;
+              {slides.map((slide, idx) => {
+                const isSelected = idx === safeIndex;
                 return (
                   <button
                     key={slide.id}

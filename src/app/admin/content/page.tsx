@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useStudio } from '@/context/StudioContext';
 import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
+import RichTextEditor from '@/components/ui/RichTextEditor';
+import { HeroSlide } from '@/types/hero';
 import {
   Save,
   Check,
@@ -15,17 +17,54 @@ import {
   Sparkles,
   MapPin,
   RefreshCw,
+  Plus,
+  Trash2,
+  Edit3,
+  X,
+  Layers,
 } from 'lucide-react';
 
 export default function AdminContentStudioPage() {
-  const { profile, updateProfile, resetToDefaults } = useStudio();
+  const {
+    profile,
+    updateProfile,
+    heroSlides,
+    updateHeroSlide,
+    addHeroSlide,
+    deleteHeroSlide,
+    resetToDefaults,
+  } = useStudio();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'philosophy' | 'gear' | 'social'>(
-    'profile'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'philosophy' | 'gear' | 'social' | 'hero'
+  >('profile');
   const [formData, setFormData] = useState(profile);
   const [isSaved, setIsSaved] = useState(false);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+
+  // Hero Slides Studio State
+  const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
+  const [isSlideModalOpen, setIsSlideModalOpen] = useState(false);
+  const [slideToDelete, setSlideToDelete] = useState<string | null>(null);
+  const [slideFormData, setSlideFormData] = useState<Partial<HeroSlide>>({
+    title: '',
+    species: '',
+    location: '',
+    region: 'Northern Lowlands',
+    category: 'Avian Fauna',
+    imageUrl: '',
+    altText: '',
+    slug: '',
+  });
+
+  // Editorial Narrative HTML state for Tiptap
+  const [editorialNarrativeHtml, setEditorialNarrativeHtml] = useState<string>(
+    formData.philosophy?.quote
+      ? `<p><strong>Guiding Ethos:</strong> "${formData.philosophy.quote}"</p><ul>${formData.philosophy.description
+          .map((d) => `<li>${d}</li>`)
+          .join('')}</ul>`
+      : '<p>Documenting northern avian fauna with zero nesting disruption.</p>'
+  );
 
   // Sync formData with profile if profile changes externally
   React.useEffect(() => {
@@ -43,6 +82,61 @@ export default function AdminContentStudioPage() {
     const updatedBio = [...formData.editorialBio];
     updatedBio[index] = value;
     setFormData({ ...formData, editorialBio: updatedBio });
+  };
+
+  const handleOpenAddSlide = () => {
+    setEditingSlide(null);
+    setSlideFormData({
+      title: '',
+      species: '',
+      location: '',
+      region: 'Northern Bangladesh',
+      category: 'Avian Fauna',
+      imageUrl: '',
+      altText: '',
+      slug: '',
+    });
+    setIsSlideModalOpen(true);
+  };
+
+  const handleOpenEditSlide = (slide: HeroSlide) => {
+    setEditingSlide(slide);
+    setSlideFormData({ ...slide });
+    setIsSlideModalOpen(true);
+  };
+
+  const handleSlideSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!slideFormData.title || !slideFormData.imageUrl) return;
+
+    const slug =
+      slideFormData.slug ||
+      slideFormData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
+    if (editingSlide) {
+      updateHeroSlide({
+        ...editingSlide,
+        ...(slideFormData as HeroSlide),
+        slug,
+      });
+    } else {
+      const newSlide: HeroSlide = {
+        id: `hero-slide-${Date.now()}`,
+        title: slideFormData.title || 'Untitled Wildlife Subject',
+        species: slideFormData.species || 'Species Undocumented',
+        location: slideFormData.location || 'Northern Bangladesh',
+        region: slideFormData.region || 'Northern Plains',
+        category: slideFormData.category || 'Wildlife',
+        imageUrl: slideFormData.imageUrl || '',
+        altText: slideFormData.altText || slideFormData.title || 'Wildlife photograph',
+        slug,
+      };
+      addHeroSlide(newSlide);
+    }
+    setIsSlideModalOpen(false);
   };
 
   return (
@@ -139,6 +233,19 @@ export default function AdminContentStudioPage() {
         >
           <Share2 className="w-3.5 h-3.5" />
           <span>Contact &amp; Social Links</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('hero')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === 'hero'
+              ? 'border-foreground text-foreground bg-card'
+              : 'border-transparent text-muted hover:text-foreground'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Hero Slideshow ({heroSlides.length})</span>
         </button>
       </div>
 
@@ -250,6 +357,30 @@ export default function AdminContentStudioPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Tiptap Rich Text Field Narrative */}
+            <div className="bg-card border border-border p-6 rounded-none space-y-4">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">
+                    Field Philosophy &amp; Narrative Composition
+                  </h3>
+                  <p className="text-xs text-muted mt-0.5">
+                    Compose with rich formatting (Bold, Italic, Headings, Lists, Hyperlinks) via Tiptap.
+                  </p>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                  Tiptap Editor
+                </span>
+              </div>
+
+              <RichTextEditor
+                content={editorialNarrativeHtml}
+                onChange={(html) => setEditorialNarrativeHtml(html)}
+                placeholder="Write rich field essays, ethical notes, or bio narrative..."
+                minHeight="min-h-[160px]"
+              />
             </div>
 
             {/* Geographic Headquarters & Coordinates */}
@@ -642,6 +773,127 @@ export default function AdminContentStudioPage() {
           </div>
         )}
 
+        {/* TAB 5: Hero Slideshow (Home Backgrounds) */}
+        {activeTab === 'hero' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-card border border-border p-6 rounded-none space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-semibold text-foreground">
+                      Homepage Hero Background Slideshow
+                    </h3>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-none">
+                      Live Sync
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mt-1 max-w-2xl">
+                    These high-resolution full-screen slides rotate automatically with progress bars on the homepage hero section. You can add new slides, update photos, species, or locations, and delete slides.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <Link
+                    href="/"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-secondary border border-border text-foreground text-xs font-semibold uppercase tracking-wider hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                  >
+                    <span>View Home</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenAddSlide}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add New Slide</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Grid of Current Hero Slides */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                {heroSlides.map((slide, index) => (
+                  <div
+                    key={slide.id}
+                    className="bg-background border border-border overflow-hidden rounded-none flex flex-col justify-between group hover:border-foreground transition-colors"
+                  >
+                    <div>
+                      {/* Image Thumbnail with Overlay Badges */}
+                      <div className="relative aspect-16/9 bg-secondary overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={slide.imageUrl}
+                          alt={slide.altText}
+                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2.5 left-2.5 bg-black/75 backdrop-blur-xs text-white text-[10px] font-mono uppercase px-2 py-0.5 border border-white/20">
+                          Slide 0{index + 1}
+                        </div>
+                        <div className="absolute top-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white text-[10px] uppercase font-semibold px-2 py-0.5 border border-white/20">
+                          {slide.category}
+                        </div>
+                      </div>
+
+                      {/* Slide Meta */}
+                      <div className="p-4 space-y-2">
+                        <div>
+                          <h4 className="text-sm font-semibold text-foreground">{slide.title}</h4>
+                          <p className="text-xs text-muted font-normal italic">{slide.species}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[11px] text-muted">
+                          <MapPin className="w-3 h-3 shrink-0" />
+                          <span className="truncate">
+                            {slide.location} {slide.region ? `(${slide.region})` : ''}
+                          </span>
+                        </div>
+
+                        <div className="text-[10px] text-muted font-mono truncate bg-secondary/60 p-1.5 border border-border">
+                          {slide.imageUrl}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="p-4 pt-0 border-t border-border mt-3 flex items-center justify-between">
+                      <Link
+                        href={`/photographs/${slide.slug}`}
+                        target="_blank"
+                        className="text-[11px] text-muted hover:text-foreground inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Linked Story</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditSlide(slide)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 border border-border cursor-pointer transition-colors"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSlideToDelete(slide.id)}
+                          className="p-1.5 text-muted hover:text-red-500 border border-border hover:border-red-300 transition-colors cursor-pointer"
+                          title="Delete slide"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Sticky Save Bar */}
         <div className="sticky bottom-4 z-30 p-4 bg-dark text-white border border-dark-border shadow-lg flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -688,6 +940,179 @@ export default function AdminContentStudioPage() {
         }}
         onCancel={() => setIsResetDialogOpen(false)}
       />
+
+      {/* Hero Slide Deletion Confirmation Dialog */}
+      <CustomConfirmDialog
+        isOpen={!!slideToDelete}
+        title="Delete Hero Background Slide"
+        message="Are you sure you want to remove this background slide from the homepage hero slideshow? This will take effect immediately."
+        confirmText="Delete Slide"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={() => {
+          if (slideToDelete) {
+            deleteHeroSlide(slideToDelete);
+            setSlideToDelete(null);
+          }
+        }}
+        onCancel={() => setSlideToDelete(null)}
+      />
+
+      {/* Add / Edit Hero Slide Modal */}
+      {isSlideModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-fadeIn">
+          <div className="relative w-full max-w-xl bg-card border border-border p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl rounded-none">
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+              <h3 className="text-xl font-normal text-foreground">
+                {editingSlide ? 'Edit Hero Background Slide' : 'Add New Hero Background Slide'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsSlideModalOpen(false)}
+                className="p-2 text-muted hover:text-foreground cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSlideSubmit} className="mt-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                  Slide Title (Wildlife Subject) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={slideFormData.title || ''}
+                  onChange={(e) => setSlideFormData({ ...slideFormData, title: e.target.value })}
+                  placeholder="e.g. The Solitary King"
+                  className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                    Species / Scientific Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={slideFormData.species || ''}
+                    onChange={(e) =>
+                      setSlideFormData({ ...slideFormData, species: e.target.value })
+                    }
+                    placeholder="e.g. Bengal Fox (Vulpes bengalensis)"
+                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                    Category *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={slideFormData.category || ''}
+                    onChange={(e) =>
+                      setSlideFormData({ ...slideFormData, category: e.target.value })
+                    }
+                    placeholder="e.g. Mammals, Avian Fauna"
+                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                    Field Location *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={slideFormData.location || ''}
+                    onChange={(e) =>
+                      setSlideFormData({ ...slideFormData, location: e.target.value })
+                    }
+                    placeholder="e.g. Panchagarh Border Plains"
+                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                    Geographic Region
+                  </label>
+                  <input
+                    type="text"
+                    value={slideFormData.region || ''}
+                    onChange={(e) => setSlideFormData({ ...slideFormData, region: e.target.value })}
+                    placeholder="e.g. Northern Lowlands"
+                    className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                  High-Resolution Image URL *
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={slideFormData.imageUrl || ''}
+                  onChange={(e) =>
+                    setSlideFormData({ ...slideFormData, imageUrl: e.target.value })
+                  }
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                />
+                {slideFormData.imageUrl && (
+                  <div className="relative aspect-16/9 max-h-40 overflow-hidden bg-secondary border border-border mt-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slideFormData.imageUrl}
+                      alt="Slide Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1">
+                  Associated Story Slug (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={slideFormData.slug || ''}
+                  onChange={(e) => setSlideFormData({ ...slideFormData, slug: e.target.value })}
+                  placeholder="e.g. bengal-fox-solitary-king"
+                  className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsSlideModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted hover:text-foreground border border-border cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer"
+                >
+                  {editingSlide ? 'Update Slide' : 'Add Slide'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -99,6 +99,15 @@ export default async function JournalDetailPage({ params }: JournalDetailPagePro
       <div className="site-container max-w-3xl mx-auto space-y-8 font-sans text-foreground/90 leading-relaxed text-base sm:text-lg">
         {article.content.map((block, idx) => {
           if (block.type === 'paragraph') {
+            if (block.content && block.content.includes('<')) {
+              return (
+                <div
+                  key={idx}
+                  className="prose prose-neutral max-w-none dark:prose-invert leading-relaxed text-base sm:text-lg"
+                  dangerouslySetInnerHTML={{ __html: block.content }}
+                />
+              );
+            }
             return (
               <p key={idx} className="leading-relaxed">
                 {block.content}

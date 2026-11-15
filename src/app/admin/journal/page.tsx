@@ -6,6 +6,7 @@ import { useStudio } from '@/context/StudioContext';
 import { JournalArticle, JournalCategory } from '@/types/journal';
 import CustomSelect from '@/components/ui/CustomSelect';
 import CustomConfirmDialog from '@/components/ui/CustomConfirmDialog';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import { journalCategoryOptions } from '@/data/studio';
 import { Plus, Search, Edit2, Trash2, X, ExternalLink, BookOpen, Clock, MapPin } from 'lucide-react';
 
@@ -325,6 +326,43 @@ export default function AdminJournalPage() {
                   value={formData.excerpt}
                   onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs bg-background border border-border text-foreground rounded-none leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted">
+                    Full Essay Body &amp; Narrative *
+                  </label>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                    Tiptap Editor
+                  </span>
+                </div>
+                <RichTextEditor
+                  content={
+                    formData.content
+                      ?.map((b) =>
+                        b.type === 'heading'
+                          ? `<h2>${b.content}</h2>`
+                          : b.type === 'quote'
+                          ? `<blockquote><p>${b.content}</p></blockquote>`
+                          : `<p>${b.content || ''}</p>`
+                      )
+                      .join('') || '<p>Write your detailed field observations and narrative here...</p>'
+                  }
+                  onChange={(html) => {
+                    setFormData({
+                      ...formData,
+                      content: [
+                        {
+                          type: 'paragraph',
+                          content: html,
+                        },
+                      ],
+                    });
+                  }}
+                  placeholder="Draft your full field essay (headings, bold, italic, quotes, lists, links)..."
+                  minHeight="min-h-[180px]"
                 />
               </div>
 
