@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Photograph } from '@/types/photograph';
+import { galleryFilterCategories } from '@/data/categories';
 import FullscreenLightbox from '@/components/photography/FullscreenLightbox';
 import { ArrowUpRight, Camera } from 'lucide-react';
 
@@ -20,13 +21,7 @@ export default function EditorialGalleryGrid({
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [activePhotoForLightbox, setActivePhotoForLightbox] = useState<Photograph | null>(null);
 
-  const categories = [
-    { id: 'all', label: 'ALL' },
-    { id: 'birds', label: 'BIRDS' },
-    { id: 'wildlife', label: 'WILDLIFE' },
-    { id: 'nature', label: 'NATURE & LANDSCAPES' },
-    { id: 'macro', label: 'MACRO PHOTOGRAPHY' },
-  ];
+  const categories = galleryFilterCategories;
 
   const filteredPhotos = useMemo(() => {
     if (selectedCategory === 'all') return initialPhotos;

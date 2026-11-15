@@ -91,7 +91,7 @@ export default function AdminContentStudioPage() {
         </div>
       </div>
 
-      {/* WordPress-like Tabbed Interface */}
+      {/* Tabbed Studio Interface */}
       <div className="flex items-center gap-2 border-b border-border overflow-x-auto pb-px">
         <button
           onClick={() => setActiveTab('profile')}

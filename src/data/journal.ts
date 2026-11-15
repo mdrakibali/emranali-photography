@@ -1,5 +1,14 @@
 import { JournalArticle } from '@/types/journal';
 
+export const journalFilterCategories: { id: string; label: string }[] = [
+  { id: 'all', label: 'ALL' },
+  { id: 'Field Notes', label: 'FIELD NOTES' },
+  { id: 'Behind the Photograph', label: 'BEHIND THE PHOTOGRAPH' },
+  { id: 'Wildlife Encounters', label: 'WILDLIFE ENCOUNTERS' },
+  { id: 'Photography Journal', label: 'PHOTOGRAPHY JOURNAL' },
+  { id: 'Nature & Conservation', label: 'NATURE & CONSERVATION' },
+];
+
 export const journalArticlesData: JournalArticle[] = [
   {
     id: 'j01',

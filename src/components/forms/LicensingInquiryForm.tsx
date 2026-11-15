@@ -1,7 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
+import CustomSelect from '@/components/ui/CustomSelect';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
+
+const licensingCategoryOptions = [
+  { value: 'print', label: 'Fine-Art Limited Edition Print' },
+  { value: 'licensing', label: 'Commercial / Editorial Licensing' },
+  { value: 'both', label: 'Both Print & Licensing Rights' },
+];
+
+const licensingTerritoryOptions = [
+  { value: 'worldwide', label: 'Worldwide All Media' },
+  { value: 'regional', label: 'National / Regional Territory' },
+  { value: 'editorial', label: 'Book / Magazine Editorial Only' },
+  { value: 'digital', label: 'Web & Digital Media Only' },
+  { value: 'private', label: 'Private Collector Domestic Display' },
+];
 
 interface LicensingFormData {
   name: string;
@@ -177,34 +192,27 @@ export default function LicensingInquiryForm({
               <label className="text-xs font-sans font-semibold text-foreground block">
                 Inquiry Category
               </label>
-              <select
-                name="inquiryType"
+              <CustomSelect
+                options={licensingCategoryOptions}
                 value={formData.inquiryType}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-background border border-border text-foreground text-sm font-sans rounded-none focus:outline-none focus:border-foreground"
-              >
-                <option value="print">Fine-Art Limited Edition Print</option>
-                <option value="licensing">Commercial / Editorial Licensing</option>
-                <option value="both">Both Print & Licensing Rights</option>
-              </select>
+                onChange={(val) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    inquiryType: val as 'licensing' | 'print' | 'both',
+                  }))
+                }
+              />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-sans font-semibold text-foreground block">
                 Licensing Scope / Territory
               </label>
-              <select
-                name="territory"
+              <CustomSelect
+                options={licensingTerritoryOptions}
                 value={formData.territory}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-background border border-border text-foreground text-sm font-sans rounded-none focus:outline-none focus:border-foreground"
-              >
-                <option value="worldwide">Worldwide All Media</option>
-                <option value="regional">National / Regional Territory</option>
-                <option value="editorial">Book / Magazine Editorial Only</option>
-                <option value="digital">Web & Digital Media Only</option>
-                <option value="private">Private Collector Domestic Display</option>
-              </select>
+                onChange={(val) => setFormData((prev) => ({ ...prev, territory: val }))}
+              />
             </div>
           </div>
 

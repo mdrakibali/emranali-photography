@@ -3,20 +3,14 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { JournalArticle, JournalCategory } from '@/types/journal';
+import { journalFilterCategories } from '@/data/journal';
 import { ArrowUpRight, Clock, MapPin } from 'lucide-react';
 
 interface JournalGridWithFilterProps {
   articles: JournalArticle[];
 }
 
-const CATEGORIES: { id: string; label: string }[] = [
-  { id: 'all', label: 'ALL' },
-  { id: 'Field Notes', label: 'FIELD NOTES' },
-  { id: 'Behind the Photograph', label: 'BEHIND THE PHOTOGRAPH' },
-  { id: 'Wildlife Encounters', label: 'WILDLIFE ENCOUNTERS' },
-  { id: 'Photography Journal', label: 'PHOTOGRAPHY JOURNAL' },
-  { id: 'Nature & Conservation', label: 'NATURE & CONSERVATION' },
-];
+const CATEGORIES = journalFilterCategories;
 
 export default function JournalGridWithFilter({ articles }: JournalGridWithFilterProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

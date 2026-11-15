@@ -51,3 +51,11 @@ export const categoriesData: CategoryInfo[] = [
     count: 4,
   },
 ];
+
+export const galleryFilterCategories = [
+  { id: 'all', label: 'ALL' },
+  { id: 'birds', label: 'BIRDS' },
+  { id: 'wildlife', label: 'WILDLIFE' },
+  { id: 'nature', label: 'NATURE & LANDSCAPES' },
+  { id: 'macro', label: 'MACRO PHOTOGRAPHY' },
+];
